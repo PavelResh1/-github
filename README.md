@@ -8,5 +8,4 @@ __Тест__
 ~~Тест~~
 - [x] #777
 - [] https://github.com
-#0969DA
 :EMOJICODE: @octocat :+1: This PR looks great - it's ready to merge! :shipit:
