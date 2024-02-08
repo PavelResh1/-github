@@ -7,5 +7,5 @@
 __Тест__
 ~~Тест~~
 - [x] #777
-- [] https://github.com
+- [ ] https://github.com
 :EMOJICODE: @octocat :+1: This PR looks great - it's ready to merge! :shipit:
