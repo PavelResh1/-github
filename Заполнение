@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp9
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "заполнение1к1DataSet.Table_2". При необходимости она может быть перемещена или удалена.
+            this.table_2TableAdapter.Fill(this.заполнение1к1DataSet.Table_2);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "заполнение1к1DataSet.Table_1". При необходимости она может быть перемещена или удалена.
+            this.table_1TableAdapter.Fill(this.заполнение1к1DataSet.Table_1);
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // Создаем подключение к базе данных
+            string connectionString = "Data Source=DESKTOP-BVF7NE9\\SQLEXPRESS;Initial Catalog=заполнение1к1;Integrated Security=True";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // Создаем транзакцию для одновременной записи в две таблицы
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                try
+                {
+                    // Вставляем данные в Table_1
+                    string insertQuery1 = "INSERT INTO Table_1 (text1) VALUES (@text1); SELECT SCOPE_IDENTITY();";
+                    using (SqlCommand command1 = new SqlCommand(insertQuery1, connection, transaction))
+                    {
+                        command1.Parameters.AddWithValue("@text1", "тест");
+                        int id1 = Convert.ToInt32(command1.ExecuteScalar());
+                    }
+
+                    // Вставляем данные в Table_2
+                    string insertQuery2 = "INSERT INTO Table_2 (id2, text2) VALUES (@id2, @text2)";
+                    using (SqlCommand command2 = new SqlCommand(insertQuery2, connection, transaction))
+                    {
+                        command2.Parameters.AddWithValue("@id1", "@Table_1"); // используем id1 из Table_1
+                        command2.Parameters.AddWithValue("@text2", "тест");
+                        command2.ExecuteNonQuery();
+                    }
+
+                    // Фиксируем транзакцию
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    // В случае ошибки откатываем транзакцию
+                    transaction.Rollback();
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+            }
+        }
+    }
+}
